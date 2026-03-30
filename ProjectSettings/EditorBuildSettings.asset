@@ -6,9 +6,19 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Samples/XREAL XR Plugin/3.0.0/AR Features/ImageTracking/BasicImageTracking.unity
+    path: Assets/Samples/XREAL XR Plugin/3.1.0/AR Features/ImageTracking/BasicImageTracking.unity
     guid: e0b018a3c3b5cfd4c8e316706ec0a18c
+  - enabled: 0
+    path: Assets/Samples/XREAL XR Plugin/3.1.0/Interaction Basics/HelloMR/HelloMR.unity
+    guid: 0c611a2881614c644b9df39be7bf8fe6
+  - enabled: 0
+    path: Assets/Samples/XR Interaction Toolkit/2.6.5/Starter Assets/DemoScene.unity
+    guid: 319dafa5c80f29f428dc1e0d03f04177
+  - enabled: 0
+    path: Assets/Samples/XREAL XR Plugin/3.1.0/AR Features/RGBCamera/RGBCamera.unity
+    guid: 76c8ce66f3fa0554c884fe7ba9cb39a2
   m_configObjects:
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: c348712bda248c246b8c49b3db54643f, type: 3}
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 7ff3cc84cfbc14b428241653eda48e36, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 3c48157b70d3a46e8a108a6c8141f177, type: 2}
     com.unity.xr.management.xrealsettings: {fileID: 11400000, guid: fbd0d0525307a4de286b5b9da52d4e07, type: 2}
