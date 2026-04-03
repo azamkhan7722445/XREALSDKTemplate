@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Samples/XREAL XR Plugin/3.1.0/AR Features/ImageTracking/BasicImageTracking.unity
     guid: e0b018a3c3b5cfd4c8e316706ec0a18c
   - enabled: 0
@@ -17,6 +17,31 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Samples/XREAL XR Plugin/3.1.0/AR Features/RGBCamera/RGBCamera.unity
     guid: 76c8ce66f3fa0554c884fe7ba9cb39a2
+  - enabled: 0
+    path: Assets/OpenCVForUnity/Examples/OpenCVForUnityExample.unity
+    guid: c1089b6c5cb5b0742be92732f5bdc172
+  - enabled: 0
+    path: Assets/OpenCVForUnity/Examples/ContribModules/tracking/TrackingExample/TrackingExample.unity
+    guid: 52d8921b70cdf1949b810e5c7ddab47a
+  - enabled: 0
+    path: Assets/Samples/XREAL XR Plugin/3.1.0/AR Features/ImageTracking/BasicImageTracking
+      UP_AZ.unity
+    guid: bc6aee73982ae224291b480aa6a1a959
+  - enabled: 0
+    path: Assets/OpenCVForUnity/Examples/ContribModules/tracking/LegacyTrackingExample/LegacyTrackingExample.unity
+    guid: bc539dc166af7f74dab32f0c3e1e6fa3
+  - enabled: 0
+    path: Assets/OpenCVForUnity/Examples/MainModules/objdetect/QRCodeDetectorExample/QRCodeDetectorWebCamExample.unity
+    guid: 5503d96b7a70b4b40a98821b9f043bc8
+  - enabled: 0
+    path: Assets/OpenCVForUnity/Examples/MainModules/objdetect/QRCodeEncoderExample/QRCodeEncoderExample.unity
+    guid: 62e649723a1155b4e8465203038790a8
+  - enabled: 0
+    path: Assets/OpenCVForUnity/Examples/MainModules/objdetect/QRCodeDetectorExample/QRCodeDetectorExample.unity
+    guid: 3463718e76ea12d4a8845b409d3c5bdc
+  - enabled: 1
+    path: Assets/OpenCVForUnity/Examples/MainModules/objdetect/QRCodeDetectorExample/QRCodeDetectorWebCamExampl_UP_AZ.unity
+    guid: 152ac934d6e617943957d295720fc0b7
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: c348712bda248c246b8c49b3db54643f, type: 3}
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 7ff3cc84cfbc14b428241653eda48e36, type: 2}

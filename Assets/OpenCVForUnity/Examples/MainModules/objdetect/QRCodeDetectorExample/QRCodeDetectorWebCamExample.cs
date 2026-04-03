@@ -14,7 +14,10 @@ namespace OpenCVForUnityExample
 {
     /// <summary>
     /// QRCodeDetector WebCam Example
-    /// An example of detecting QRCode in a image of WebCamTexture using the QRCodeDetector class.
+    /// An example of detecting QRCode in a webcam image using OpenCV and Unity.
+    /// This script starts the selected camera, converts frames to OpenCV Mat, detects QR codes,
+    /// draws the detection results, and displays the live camera feed on the object.
+    /// UP_AZ: Heading added by assistant.
     /// https://github.com/opencv/opencv/blob/master/samples/cpp/qrcode.cpp
     /// </summary>
     [RequireComponent(typeof(WebCamTextureToMatHelper))]
@@ -66,12 +69,29 @@ namespace OpenCVForUnityExample
         FpsMonitor fpsMonitor;
 
         // Use this for initialization
+        // UP_AZ: This method runs once when the scene starts.
+        // UP_AZ: It gets the helper and detector, then starts the webcam.
         void Start()
         {
             fpsMonitor = GetComponent<FpsMonitor>();
 
             webCamTextureToMatHelper = gameObject.GetComponent<WebCamTextureToMatHelper>();
 
+            // UP_AZ: Try to choose the Xreal RGB camera device automatically.
+            string xrealDeviceName = FindXrealCameraDeviceName();
+            if (!string.IsNullOrEmpty(xrealDeviceName))
+            {
+                webCamTextureToMatHelper.requestedDeviceName = xrealDeviceName;
+                Debug.Log("UP_AZ: Selected Xreal camera device: " + xrealDeviceName);
+            }
+            else
+            {
+                Debug.Log("UP_AZ: Xreal camera not found. Listing available devices:");
+                foreach (var device in WebCamTexture.devices)
+                {
+                    Debug.Log("UP_AZ: Camera name=" + device.name + ", frontFacing=" + device.isFrontFacing);
+                }
+            }
 
             detector = new QRCodeDetector();
 
@@ -83,8 +103,23 @@ namespace OpenCVForUnityExample
 
         }
 
+        string FindXrealCameraDeviceName()
+        {
+            foreach (var device in WebCamTexture.devices)
+            {
+                if (device.name.IndexOf("xreal", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    device.name.IndexOf("rgb", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return device.name;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Raises the web cam texture to mat helper initialized event.
+        /// UP_AZ: This is called when the webcam helper has finished starting the camera.
         /// </summary>
         public void OnWebCamTextureToMatHelperInitialized()
         {
@@ -107,7 +142,7 @@ namespace OpenCVForUnityExample
                 fpsMonitor.Add("orientation", Screen.orientation.ToString());
             }
 
-
+            // UP_AZ: These stats are shown on screen by FpsMonitor for debugging.
             float width = webCamTextureMat.width();
             float height = webCamTextureMat.height();
 
@@ -147,6 +182,7 @@ namespace OpenCVForUnityExample
         {
             Debug.Log("OnWebCamTextureToMatHelperDisposed");
 
+            // UP_AZ: Clean up OpenCV objects when the webcam helper is stopped or reset.
             if (grayMat != null)
                 grayMat.Dispose();
 
@@ -181,6 +217,7 @@ namespace OpenCVForUnityExample
         // Update is called once per frame
         void Update()
         {
+            // UP_AZ: Each frame, get the latest webcam image and attempt QR decoding.
             if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame())
             {
 
@@ -280,6 +317,7 @@ namespace OpenCVForUnityExample
         /// </summary>
         public void OnChangeCameraButtonClick()
         {
+            // UP_AZ: Toggle between front and back camera when the user presses the button.
             webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.requestedIsFrontFacing;
         }
     }
