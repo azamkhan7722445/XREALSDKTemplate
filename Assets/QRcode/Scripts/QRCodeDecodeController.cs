@@ -1,202 +1,156 @@
-/// <summary>
-/// write by 52cwalk,if you have some question ,please contract lycwalk@gmail.com
-/// </summary>
-
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using System;
-using System.Linq;
-
+using System.Collections.Generic;
 using ZXing;
 using ZXing.Common;
-using ZXing.QrCode;
-using System.IO;
 using UnityEngine.Events;
 
 public class QRCodeDecodeController : MonoBehaviour
 {
     [Serializable]
     public class UnityEventString : UnityEvent<string> { };
-   
-
-    bool decoding = false;		
-	bool tempDecodeing = false;
-	string dataText = null;
-	public DeviceCameraController e_DeviceController = null; 
-	private Color[] orginalc;   	//the colors of the camera data.
-	private Color32[] targetColorARR;   	//the colors of the camera data.
-	private byte[] targetbyte;		//the pixels of the camera image.
-	private int W, H, WxH;			//width/height of the camera image			
-	int framerate = 0; 		
-
-	#if UNITY_IOS
-	int blockWidth = 450;
-	#elif UNITY_ANDROID
-	int blockWidth = 350;
-	#else
-	int blockWidth = 350;
-	#endif
-	bool isInit = false;
-	BarcodeReader barReader;
-
     public UnityEventString onQRScanFinished;
 
+    public DeviceCameraController e_DeviceController;
+
+    private BarcodeReader barReader;
+    private bool decoding = false;
+    private string dataText = null;
+
+    private int blockWidth = 350;
+    private bool cameraReady = false;
+    private int frameWait = 0;
+    private int framerate = 0;
+    private int m_ScanAttempts = 0;
+    private int m_ScanFails = 0;
+
     void Start()
-	{
-		barReader = new BarcodeReader ();
-		barReader.AutoRotate = true;
-		barReader.TryInverted = true;
-		
-		if (!e_DeviceController) {
-			e_DeviceController = GameObject.FindObjectOfType<DeviceCameraController>();
-			if(!e_DeviceController)
-			{
-				Debug.LogError("the Device Controller is not exsit,Please Drag DeviceCamera from project to Hierarchy");
-			}
-		}
-	}
-	
-	void Update()
-	{
-		#if UNITY_EDITOR
-		if (framerate++ % 15== 0) {
-#elif UNITY_IOS || UNITY_ANDROID
-		if (framerate++ % 15== 0) {
-#else
-        if (framerate++ % 20== 0) {
-#endif
-            if (e_DeviceController.isPlaying && !decoding)
-			{
-				W = e_DeviceController.dWebCam.Width();					// get the image width
-				H = e_DeviceController.dWebCam.Height();			// get the image height 
-
-				if (W < 100 || H < 100) {
-					return;
-				}
-
-				if(!isInit && W>100 && H>100)
-				{
-                    blockWidth = Math.Min(W, H);
-                    isInit = true;
-				}
-
-				if(targetColorARR == null)
-				{
-					targetColorARR= new Color32[blockWidth * blockWidth];
-				}
-
-				int posx = ((W-blockWidth)>>1);//
-				int posy = ((H-blockWidth)>>1);
-				
-				orginalc = e_DeviceController.dWebCam.GetPixels(posx,posy,blockWidth,blockWidth);// get the webcam image colors
-
-                //convert the color(float) to color32 (byte)
-				for(int i=0;i!= blockWidth;i++)
-				{
-					for(int j = 0;j!=blockWidth ;j++)
-					{
-						targetColorARR[i + j*blockWidth].r = (byte)( orginalc[i + j*blockWidth].r*255);
-						targetColorARR[i + j*blockWidth].g = (byte)(orginalc[i + j*blockWidth].g*255);
-						targetColorARR[i + j*blockWidth].b = (byte)(orginalc[i + j*blockWidth].b*255);
-						targetColorARR[i + j*blockWidth].a = 255;
-					}
-				}
-#if !UNITY_WEBGL
-                // scan the qrcode 
-                Loom.RunAsync(() =>
-				              {
-					try
-					{
-						Result data;
-						data = barReader.Decode(targetColorARR,blockWidth,blockWidth);//start decode
-						if (data != null) // if get the result success
-						{
-							decoding = true; 	// set the variable is true
-							dataText = data.Text;	// use the variable to save the code result
-						}
-
-					}
-					catch (Exception e)
-					{
-						//	Debug.LogError("Decode Error: " + e.Data.ToString());
-						decoding = false;
-					}
-				});	
-#else 
-                Result data;
-                data = barReader.Decode(targetColorARR, blockWidth, blockWidth);//start decode
-                if (data != null) // if get the result success
-                {
-                    decoding = true;    // set the variable is true
-                    dataText = data.Text;   // use the variable to save the code result
-                }
-#endif
-
+    {
+        barReader = new BarcodeReader
+        {
+            AutoRotate = true,
+            TryInverted = true,
+            Options = new DecodingOptions
+            {
+                PossibleFormats = new List<BarcodeFormat> { BarcodeFormat.QR_CODE },
+                TryHarder = true
             }
-			
-			if(decoding)
-			{
-				// if the status variable is change
-				if(tempDecodeing != decoding)
-				{
-					onQRScanFinished.Invoke(dataText);//triger the scan finished event;
-				}
-				tempDecodeing = decoding;
-			}
-		}
-	}
- 	
-	/// <summary>
-	/// Reset this scan param
-	/// </summary>
-	public void Reset()
-	{
-		decoding = false;
-		tempDecodeing = decoding;
-	}
-    
-	/// <summary>
-	/// Stops the work.
-	/// </summary>
-	public void StartWork()
-	{
-		if (e_DeviceController != null) {
-			e_DeviceController.StartWork();
-		}
-		decoding = false;
-		tempDecodeing = decoding;
-	}
-	
-	/// <summary>
-	/// Stops the work.
-	/// </summary>
-	public void StopWork()
-	{
-		decoding = true;
-		tempDecodeing = decoding;
-		if (e_DeviceController != null) {
-			e_DeviceController.StopWork();
-		}
-	}
-	
-	/// <summary>
-	/// Decodes the by static picture.
-	/// </summary>
-	/// <returns> return the decode result string </returns>
-	/// <param name="tex">target texture.</param>
-	public static string DecodeByStaticPic(Texture2D tex)
-	{
-		BarcodeReader codeReader = new BarcodeReader ();
-		codeReader.AutoRotate = true;
-		codeReader.TryInverted = true;
-		
-		Result data = codeReader.Decode (tex.GetPixels32 (), tex.width, tex.height);
-		if (data != null) {
-			return data.Text;
-		} else {
-			return "decode failed!";
-		}
-	}
-	
+        };
+
+        if (!e_DeviceController)
+        {
+            e_DeviceController = GameObject.FindObjectOfType<DeviceCameraController>();
+            if (!e_DeviceController)
+                Debug.LogError("❌ DeviceCameraController missing!");
+        }
+    }
+
+    void Update()
+    {
+        // Skip frames for performance
+        if (framerate++ % 5 != 0) return;
+        if (!e_DeviceController || !e_DeviceController.isPlaying || decoding) return;
+
+        // Allow camera to warm up
+        if (frameWait < 15) { frameWait++; return; }
+
+        Texture2D tex = e_DeviceController.GetReadableTexture();
+        if (tex == null) return;
+
+        if (!cameraReady)
+        {
+            Debug.Log("✅ Camera Ready for QR");
+            cameraReady = true;
+        }
+
+        int W = tex.width;
+        int H = tex.height;
+        if (W < 100 || H < 100) return;
+
+        blockWidth = Mathf.Min(W, H);
+
+        Color32[] fullPixels = tex.GetPixels32();
+        if (fullPixels == null || fullPixels.Length == 0) return;
+
+        // Crop center block
+        int posx = (W - blockWidth) / 2;
+        int posy = (H - blockWidth) / 2;
+        Color32[] targetColorARR = new Color32[blockWidth * blockWidth];
+
+        int index = 0;
+        for (int y = 0; y < blockWidth; y++)
+        {
+            for (int x = 0; x < blockWidth; x++)
+            {
+                int srcIndex = (posy + y) * W + (posx + x);
+                targetColorARR[index++] = fullPixels[srcIndex];
+            }
+        }
+
+        // DEBUG: log scan attempt with center pixel color every 10 attempts
+        m_ScanAttempts++;
+        if (m_ScanAttempts % 10 == 1)
+        {
+            Color32 center = targetColorARR[targetColorARR.Length / 2];
+            Debug.Log($"QR scan #{m_ScanAttempts} | blockWidth:{blockWidth} | centerPixel R:{center.r} G:{center.g} B:{center.b} | fails so far:{m_ScanFails}");
+        }
+
+        // Decode async — result dispatched back to main thread
+        decoding = true;
+        Loom.RunAsync(() =>
+        {
+            try
+            {
+                var result = barReader.Decode(targetColorARR, blockWidth, blockWidth);
+                if (result != null)
+                {
+                    string text = result.Text;
+                    Loom.QueueOnMainThread(() =>
+                    {
+                        Debug.Log("✅ QR DETECTED: " + text);
+                        onQRScanFinished.Invoke(text);
+                        decoding = false;
+                    });
+                }
+                else
+                {
+                    m_ScanFails++;
+                    Loom.QueueOnMainThread(() => decoding = false);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Decode Error: {e.Message}");
+                Loom.QueueOnMainThread(() => decoding = false);
+            }
+        });
+    }
+
+    // ─────────────────────────────
+    public void Reset()
+    {
+        decoding = false;
+        dataText = null;
+    }
+
+    public void StartWork()
+    {
+        if (e_DeviceController != null)
+            e_DeviceController.StartWork();
+        Reset();
+    }
+
+    public void StopWork()
+    {
+        if (e_DeviceController != null)
+            e_DeviceController.StopWork();
+    }
+
+    // ─────────────────────────────
+    public static string DecodeByStaticPic(Texture2D tex)
+    {
+        var reader = new BarcodeReader { AutoRotate = true, TryInverted = true };
+        var result = reader.Decode(tex.GetPixels32(), tex.width, tex.height);
+        return result != null ? result.Text : "decode failed!";
+    }
 }
