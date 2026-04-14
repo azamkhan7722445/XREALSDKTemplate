@@ -6,6 +6,7 @@ using TBEasyWebCam;
 
 public class QRDecodeTest : MonoBehaviour
 {
+	public testQR testqr;
 	public QRCodeDecodeController e_qrController;
 
 	public Text UiText;
@@ -44,6 +45,7 @@ public class QRDecodeTest : MonoBehaviour
 		}
 		this.UiText.text = dataText;
 		Debug.Log("QR CODE SUCESS");
+		testqr.Start123(dataText);
 		//Qr_Code_Manager.Instance.Qr_code(dataText);
 		//Treasure_Bag_Manager.Instance.off_QR_code();
 		if (this.resetBtn != null)
